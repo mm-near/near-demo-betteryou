@@ -1,0 +1,1 @@
+contract for regular wakeup challenge.

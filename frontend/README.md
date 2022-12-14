@@ -1,0 +1,1 @@
+Files for the frontend - that will be later deployed as part of near.social 
