@@ -1,39 +1,38 @@
 use std::collections::HashMap;
 
+use near_sdk::{AccountId, Balance};
+
 #[derive(Debug)]
 pub struct Stake {
-    backer: String,
-    value: u64,
+    backer: AccountId,
+    value: Balance,
 }
 
-#[derive(Default)]
 pub struct FundingEngine {
-    founder: String,
-    initial_stake: u64,
+    founder: AccountId,
+    initial_stake: Balance,
     backers: Vec<Stake>,
 }
 
 impl FundingEngine {
-    pub fn new(founder: &str, initial_stake: u64) -> Self {
+    pub fn new(founder: AccountId, initial_stake: Balance) -> Self {
         Self {
-            founder: founder.to_string(),
+            founder,
             initial_stake,
             backers: Vec::new(),
         }
     }
 
     /// Funds the commitment.
-    pub fn fund(&mut self, player_id: &str, value: u64) {
-        self.backers.push(Stake {
-            backer: player_id.to_string(),
-            value,
-        });
+    pub fn fund(&mut self, backer: AccountId, value: Balance) {
+        self.backers.push(Stake { backer, value });
     }
 
     /// Resolves the commitment and returns payouts to each backer.
-    pub fn resolve(&self, success: bool) -> HashMap<String, u64> {
-        let total_stake = self.initial_stake + self.backers.iter().map(|b| b.value).sum::<u64>();
-        let mut payouts = HashMap::<String, u64>::new();
+    pub fn resolve(&self, success: bool) -> HashMap<AccountId, Balance> {
+        let total_stake =
+            self.initial_stake + self.backers.iter().map(|b| b.value).sum::<Balance>();
+        let mut payouts = HashMap::<AccountId, Balance>::new();
         payouts.insert(self.founder.clone(), if success { total_stake } else { 0 });
         for backing in &self.backers {
             payouts.insert(
@@ -51,22 +50,25 @@ mod tests {
 
     #[test]
     fn no_backers() {
-        let engine = FundingEngine::new("me", 42);
-        assert_eq!(engine.resolve(true), [("me".to_string(), 42)].into());
-        assert_eq!(engine.resolve(false), [("me".to_string(), 0)].into());
+        let my_account: AccountId = "me".parse().unwrap();
+        let engine = FundingEngine::new(my_account.clone(), 42);
+        assert_eq!(engine.resolve(true), [(my_account.clone(), 42)].into());
+        assert_eq!(engine.resolve(false), [(my_account.clone(), 0)].into());
     }
 
     #[test]
     fn single_backer() {
-        let mut engine = FundingEngine::new("me", 10);
-        engine.fund("friend", 20);
+        let my_account: AccountId = "me".parse().unwrap();
+        let friend_account: AccountId = "friend".parse().unwrap();
+        let mut engine = FundingEngine::new(my_account.clone(), 10);
+        engine.fund(friend_account.clone(), 20);
         assert_eq!(
             engine.resolve(true),
-            [("me".to_string(), 30), ("friend".to_string(), 0)].into()
+            [(my_account.clone(), 30), (friend_account.clone(), 0)].into()
         );
         assert_eq!(
             engine.resolve(false),
-            [("me".to_string(), 0), ("friend".to_string(), 20)].into()
+            [(my_account.clone(), 0), (friend_account.clone(), 20)].into()
         );
     }
 }
