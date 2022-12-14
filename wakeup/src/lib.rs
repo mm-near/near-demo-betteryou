@@ -1,6 +1,6 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, Balance, Promise, near_bindgen, AccountId, PanicOnDefault};
-use near_sdk::collections::{LookupMap};
+use near_sdk::collections::unordered_map::{UnorderedMap};
 use near_sdk::serde;
 
 
@@ -16,7 +16,7 @@ const MAX_DAYS : u64 = 1000;
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-    challenges: LookupMap<AccountId,ChallengeState>,
+    challenges: UnorderedMap<AccountId,ChallengeState>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, BorshDeserialize, BorshSerialize)]
@@ -26,6 +26,8 @@ pub struct ChallengeConfig {
     days: u64,
     first_day: Timestamp,
     timeout: Duration,
+    // TESTONLY: set custom day length.
+    day_length: Option<Duration>,
 }
 
 impl ChallengeConfig {
@@ -56,7 +58,7 @@ impl ChallengeState {
                 break;
             }
             // Has a new day started?
-            let day_start = self.config.first_day + self.days_passed*DAY;
+            let day_start = self.config.first_day + self.days_passed*self.config.day_length.unwrap_or(DAY);
             if now < day_start {
                 break;
             }
@@ -85,15 +87,22 @@ impl Contract {
     #[init]
     pub fn new() -> Self {
         Self {
-            challenges: LookupMap::new(b"c"),
+            challenges: UnorderedMap::new(b"v"),
         }
+    }
+
+    pub fn reset(&mut self) {
+        if env::predecessor_account_id()!=env::current_account_id() {
+            panic!("reset() can be called by admin only");
+        }
+        self.challenges.clear();
     }
 
     pub fn create_challenge(&mut self, config: ChallengeConfig) {
         // TODO: token allocation
         config.validate();
         let caller = env::predecessor_account_id();
-        if self.challenges.contains_key(&caller) {
+        if self.challenges.get(&caller).is_some() {
             panic!("challenge already exists");
         }
         self.challenges.insert(&caller, &ChallengeState{
@@ -119,6 +128,11 @@ impl Contract {
         let mut ch = self.challenges.get(&account_id).expect("challenge not found");
         ch.prize += env::attached_deposit();
         self.challenges.insert(&account_id,&ch);
+    }
+
+    pub fn abandon_challenge(&mut self) {
+        let caller = env::predecessor_account_id();
+        self.challenges.remove(&caller);    
     }
 
     pub fn finish_challenge(&mut self) -> Option<Balance> {
