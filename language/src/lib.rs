@@ -125,6 +125,7 @@ impl Contract {
         let mut previous_val = self.challenges.get(&env::predecessor_account_id()).unwrap();
         previous_val.days_left = previous_val.days_left.checked_sub(1).unwrap();
         previous_val.lives_left = previous_val.lives_left.checked_sub(1).unwrap();
+        previous_val.current_daily_xp = 0;
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
