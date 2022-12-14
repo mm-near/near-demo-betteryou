@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn single_player_lose() {
-        let mut engine = BettingEngine::new();
+        let mut engine = BettingEngine::default();
         engine.bet_for("owner", 42);
         let payouts = engine.resolve(Outcome::Failure);
         assert_eq!(payouts, vec![("owner".to_string(), 0)]);
@@ -85,7 +85,7 @@ mod tests {
 
     #[test]
     fn two_players() {
-        let mut engine = BettingEngine::new();
+        let mut engine = BettingEngine::default();
         engine.bet_for("owner", 10);
         engine.bet_against("friend", 20);
         let payouts = engine.resolve(Outcome::Success);
