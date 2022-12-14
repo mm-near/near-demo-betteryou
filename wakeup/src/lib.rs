@@ -35,7 +35,7 @@ impl ChallengeConfig {
         if self.days>MAX_DAYS {
             panic!("got {} days, want <= {MAX_DAYS}",self.days);
         }
-        if self.lives>self.days {
+        if self.lives>MAX_DAYS {
             panic!("got {} lives, want <= {MAX_DAYS}",self.lives);
         }
     }
@@ -98,8 +98,8 @@ impl Contract {
         self.challenges.clear();
     }
 
+    #[payable]
     pub fn create_challenge(&mut self, config: ChallengeConfig) {
-        // TODO: token allocation
         config.validate();
         let caller = env::predecessor_account_id();
         if self.challenges.get(&caller).is_some() {
@@ -124,6 +124,7 @@ impl Contract {
         self.challenges.insert(&caller,&ch);
     }
 
+    #[payable]
     pub fn add_prize(&mut self, account_id: AccountId) {
         let mut ch = self.challenges.get(&account_id).expect("challenge not found");
         ch.prize += env::attached_deposit();
