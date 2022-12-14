@@ -93,7 +93,13 @@ impl Contract {
     pub fn admin_update_challenge(&mut self, update: Vec<(AccountId, u32)>) {
         for i in 0..update.len() {
             let mut previous_val = self.challenges.get(&update[i].0).unwrap();
-            previous_val.current_daily_xp = previous_val.current_daily_xp.checked_add(&update[i].1);
+            let incoming_value = &update[i].1;
+            previous_val.current_daily_xp = previous_val
+                .current_daily_xp
+                .checked_add(*incoming_value)
+                .unwrap();
+            previous_val.total_xp = previous_val.total_xp.checked_add(*incoming_value).unwrap();
+            self.challenges.insert(&update[i].0, &previous_val);
         }
     }
 
