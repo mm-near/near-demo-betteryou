@@ -104,8 +104,8 @@ impl Contract {
         });
     }
 
-    pub fn get_challenge(&self, account_id: AccountId) -> ChallengeState {
-        self.challenges.get(&account_id).expect("challenge not found")
+    pub fn get_challenge(&self, account_id: AccountId) -> Option<ChallengeState> {
+        self.challenges.get(&account_id)
     }
 
     pub fn update_challenge(&mut self) {
@@ -121,13 +121,15 @@ impl Contract {
         self.challenges.insert(&account_id,&ch);
     }
 
-    pub fn finish_challenge(&mut self) {
+    pub fn finish_challenge(&mut self) -> Option<Balance> {
         let caller = env::predecessor_account_id();
-        let mut ch = self.challenges.remove(&caller).expect("challenge not found");    
+        let mut ch = self.challenges.get(&caller).expect("challenge not found");    
         ch.update(env::block_timestamp());
-        match ch.final_prize() {
-            None => panic!("challenge is still ongoing"),
-            Some(prize) => { Promise::new(caller).transfer(prize); },
+        let prize = ch.final_prize();
+        if let Some(prize) = prize {
+            Promise::new(caller.clone()).transfer(prize);
+            self.challenges.remove(&caller);
         }
+        prize
     }
 }
