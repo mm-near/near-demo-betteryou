@@ -3,14 +3,13 @@ use near_sdk::env::panic_str;
 use near_sdk::serde::Serialize;
 use near_sdk::{env, near_bindgen, AccountId};
 
-use near_sdk::collections::{LookupMap, UnorderedSet};
+use near_sdk::collections::UnorderedMap;
 
 // Define the contract structure
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
-    challenges: LookupMap<AccountId, ChallengeState>,
-    accounts: UnorderedSet<DuolingoAccount>,
+    challenges: UnorderedMap<AccountId, ChallengeState>,
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize)]
@@ -36,8 +35,7 @@ pub struct DuolingoAccount {
 impl Default for Contract {
     fn default() -> Self {
         Self {
-            challenges: LookupMap::new(b"challenges".to_vec()),
-            accounts: UnorderedSet::new(b"s"),
+            challenges: UnorderedMap::new(b"m"),
         }
     }
 }
@@ -53,8 +51,8 @@ impl Contract {
         self.challenges.get(&env::predecessor_account_id()).unwrap()
     }
 
-    pub fn get_all_duolingo_accounts(&self) -> Vec<DuolingoAccount> {
-        self.accounts.to_vec()
+    pub fn get_all_state(&self) -> Vec<(AccountId, ChallengeState)> {
+        self.challenges.to_vec()
     }
 
     pub fn create_challenge(
@@ -63,11 +61,9 @@ impl Contract {
         duolingo_username: String,
         quota_per_day: u32,
     ) {
-        if self.challenges.contains_key(&env::predecessor_account_id()) {
+        if let Some(_challenge) = self.challenges.get(&env::predecessor_account_id()) {
             env::panic_str("Challenge already present");
         }
-        let duo = duolingo_username.clone();
-        let lang = language.clone();
         self.challenges.insert(
             &env::predecessor_account_id(),
             &ChallengeState {
@@ -83,11 +79,6 @@ impl Contract {
                 language,
             },
         );
-        self.accounts.insert(&DuolingoAccount {
-            duolingo_username: duo,
-            language: lang,
-            account_id: env::predecessor_account_id().clone(),
-        });
     }
 
     pub fn admin_update_challenge(&mut self, update: Vec<(AccountId, u32)>) {
@@ -112,9 +103,21 @@ impl Contract {
         }
     }
 
+    pub fn admin_check_successful_day(&mut self) {
+        let all_challenges = self.challenges.to_vec();
+        for i in 0..all_challenges.len() {
+            if all_challenges[i].1.quota_per_day <= all_challenges[i].1.current_daily_xp {
+                self.admin_move_day();
+            } else {
+                self.admin_fail_day()
+            }
+        }
+    }
+
     pub fn admin_move_day(&mut self) {
         let mut previous_val = self.challenges.get(&env::predecessor_account_id()).unwrap();
         previous_val.days_left = previous_val.days_left.checked_sub(1).unwrap();
+        previous_val.current_daily_xp = 0;
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
@@ -122,6 +125,7 @@ impl Contract {
         let mut previous_val = self.challenges.get(&env::predecessor_account_id()).unwrap();
         previous_val.days_left = previous_val.days_left.checked_sub(1).unwrap();
         previous_val.lives_left = previous_val.lives_left.checked_sub(1).unwrap();
+        previous_val.current_daily_xp = 0;
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
