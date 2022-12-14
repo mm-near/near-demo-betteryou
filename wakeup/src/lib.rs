@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault};
+use near_sdk::{env, Balance, Promise, near_bindgen, AccountId, PanicOnDefault};
 use near_sdk::collections::{LookupMap};
 use near_sdk::serde;
 
@@ -45,6 +45,39 @@ pub struct ChallengeState {
     config: ChallengeConfig,
     days_passed: u64,
     lives_used: u64,
+    prize: Balance,
+}
+
+impl ChallengeState {
+    fn update(&mut self, now: Timestamp) {
+        loop {
+            // Has challenge finished?
+            if self.lives_used > self.config.lives || self.days_passed >= self.config.days {
+                break;
+            }
+            // Has a new day started?
+            let day_start = self.config.first_day + self.days_passed*DAY;
+            if now < day_start {
+                break;
+            }
+            // Progress the challenge state by 1 day.
+            self.days_passed += 1;
+            if day_start + self.config.timeout < now {
+                self.lives_used += 1;
+            }
+        }
+    }
+
+    fn final_prize(&self) -> Option<Balance> {
+        if self.days_passed<self.config.days {
+            return None;
+        }
+        if self.lives_used<self.config.lives {
+            Some(self.prize)
+        } else {
+            Some(0)
+        }
+    }
 }
 
 #[near_bindgen]
@@ -67,40 +100,34 @@ impl Contract {
             config,
             days_passed: 0,
             lives_used: 0,
+            prize: env::attached_deposit(),
         });
     }
 
-    pub fn get_challenge(&self, account_id: AccountId) -> Option<ChallengeState> {
-        self.challenges.get(&account_id)
+    pub fn get_challenge(&self, account_id: AccountId) -> ChallengeState {
+        self.challenges.get(&account_id).expect("challenge not found")
     }
 
-    pub fn register_wakeup(&mut self) {
+    pub fn update_challenge(&mut self) {
         let caller = env::predecessor_account_id();
         let mut ch = self.challenges.get(&caller).expect("challenge not found");
-
-        let now : Timestamp = env::block_timestamp();
-        loop {
-            // Has challenge finished?
-            if ch.lives_used > ch.config.lives || ch.days_passed >= ch.config.days {
-                break;
-            }
-            // Has a new day started?
-            let day_start = ch.config.first_day + ch.days_passed*DAY;
-            if now < day_start {
-                break;
-            }
-            // Progress the challenge state by 1 day.
-            ch.days_passed += 1;
-            if day_start + ch.config.timeout < now {
-                ch.lives_used += 1;
-            }
-        }
-        // Update the challenge state.
+        ch.update(env::block_timestamp());
         self.challenges.insert(&caller,&ch);
     }
 
-    pub fn delete_challenge(&mut self) {
+    pub fn add_prize(&mut self, account_id: AccountId) {
+        let mut ch = self.challenges.get(&account_id).expect("challenge not found");
+        ch.prize += env::attached_deposit();
+        self.challenges.insert(&account_id,&ch);
+    }
+
+    pub fn finish_challenge(&mut self) {
         let caller = env::predecessor_account_id();
-        self.challenges.remove(&caller).expect("challenge not found");    
+        let mut ch = self.challenges.remove(&caller).expect("challenge not found");    
+        ch.update(env::block_timestamp());
+        match ch.final_prize() {
+            None => panic!("challenge is still ongoing"),
+            Some(prize) => { Promise::new(caller).transfer(prize); },
+        }
     }
 }
