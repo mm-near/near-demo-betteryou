@@ -1,20 +1,22 @@
 use std::collections::HashMap;
 
+use near_sdk::Balance;
+
 #[derive(Debug)]
 pub struct Stake {
     backer: String,
-    value: u64,
+    value: Balance,
 }
 
 #[derive(Default)]
 pub struct FundingEngine {
     founder: String,
-    initial_stake: u64,
+    initial_stake: Balance,
     backers: Vec<Stake>,
 }
 
 impl FundingEngine {
-    pub fn new(founder: &str, initial_stake: u64) -> Self {
+    pub fn new(founder: &str, initial_stake: Balance) -> Self {
         Self {
             founder: founder.to_string(),
             initial_stake,
@@ -23,17 +25,18 @@ impl FundingEngine {
     }
 
     /// Funds the commitment.
-    pub fn fund(&mut self, player_id: &str, value: u64) {
+    pub fn fund(&mut self, backer: &str, value: Balance) {
         self.backers.push(Stake {
-            backer: player_id.to_string(),
+            backer: backer.to_string(),
             value,
         });
     }
 
     /// Resolves the commitment and returns payouts to each backer.
-    pub fn resolve(&self, success: bool) -> HashMap<String, u64> {
-        let total_stake = self.initial_stake + self.backers.iter().map(|b| b.value).sum::<u64>();
-        let mut payouts = HashMap::<String, u64>::new();
+    pub fn resolve(&self, success: bool) -> HashMap<String, Balance> {
+        let total_stake =
+            self.initial_stake + self.backers.iter().map(|b| b.value).sum::<Balance>();
+        let mut payouts = HashMap::<String, Balance>::new();
         payouts.insert(self.founder.clone(), if success { total_stake } else { 0 });
         for backing in &self.backers {
             payouts.insert(
