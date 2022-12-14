@@ -1,0 +1,24 @@
+const accountId = context.accountId;
+
+const score = Near.view("dummy.betteryou.testnet", "get_state_for_user", {
+  account_id: accountId,
+});
+
+return (
+  <div
+    style={{
+      width: 500 + "px",
+      border: "2px solid black",
+      borderRadius: 25 + "px",
+      padding: 20 + "px",
+    }}
+  >
+    {accountId} -- Your {score["total_days"]}-day wake-up challenge. <br />
+    Your progress progress: <b>{score["days_left"]}</b> days remaining,{" "}
+    <b>{score["lives_left"]}</b> lives left. <br />
+    Current reward: <b>{score["reward"]} N</b> (from 3 people) <br />
+    Current bets: Success: <b>200N</b> (10 people), Failure: <b>400N</b> (15
+    people). <br />
+    <button disabled="true">I'm awake (button active in 4h)</button>
+  </div>
+);
