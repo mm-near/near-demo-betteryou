@@ -56,14 +56,8 @@ impl Contract {
         }
     }
 
-    pub fn reset(&mut self) {
-        if env::predecessor_account_id()!=env::current_account_id() {
-            panic!("only admin can reset the contract state");
-        }
-        self.challenges.clear();
-    }
-
-    pub fn new_challenge(&mut self, config: ChallengeConfig) {
+    pub fn create_challenge(&mut self, config: ChallengeConfig) {
+        // TODO: token allocation
         config.validate();
         let caller = env::predecessor_account_id();
         if self.challenges.contains_key(&caller) {
@@ -76,9 +70,8 @@ impl Contract {
         });
     }
 
-    pub fn get_challenge(&self) -> Option<ChallengeState> {
-        let caller = env::predecessor_account_id();
-        self.challenges.get(&caller)
+    pub fn get_challenge(&self, account_id: AccountId) -> Option<ChallengeState> {
+        self.challenges.get(&account_id)
     }
 
     pub fn register_wakeup(&mut self) {
@@ -104,5 +97,10 @@ impl Contract {
         }
         // Update the challenge state.
         self.challenges.insert(&caller,&ch);
+    }
+
+    pub fn delete_challenge(&mut self) {
+        let caller = env::predecessor_account_id();
+        self.challenges.remove(&caller).expect("challenge not found");    
     }
 }
