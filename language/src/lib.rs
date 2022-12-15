@@ -3,7 +3,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::UnorderedMap;
 use near_sdk::env::panic_str;
 use near_sdk::serde::Serialize;
-use near_sdk::{env, near_bindgen, AccountId};
+use near_sdk::{env, near_bindgen, AccountId, Promise};
 
 // Full seconds since UNIX_EPOCH.
 pub type Timestamp = u64;
@@ -65,7 +65,7 @@ impl Contract {
     pub fn get_all_state(&self) -> Vec<(AccountId, ChallengeState)> {
         self.challenges.to_vec()
     }
-
+    #[payable]
     pub fn create_challenge(
         &mut self,
         language: String,
@@ -134,9 +134,26 @@ impl Contract {
             self.challenges.insert(&update[i].0, &previous_val);
         }
     }
+
     pub fn cleanup_challenge(&mut self) {
         let challenge = self.get_challenge();
         if challenge.days_left == 0 || challenge.lives_left == 0 {
+            if challenge.days_left == 0 && challenge.lives_left > 0 {
+                let prize = challenge.funding.resolve(true);
+                for (account_id, tokens) in prize.iter() {
+                    Promise::new(account_id.clone()).transfer(*tokens);
+                }
+            } else if challenge.days_left > 0 && challenge.lives_left == 0 {
+                let prize = challenge.funding.resolve(false);
+                for (account_id, tokens) in prize.iter() {
+                    Promise::new(account_id.clone()).transfer(*tokens);
+                }
+            } else if challenge.days_left == 0 && challenge.lives_left == 0 {
+                let prize = challenge.funding.resolve(false);
+                for (account_id, tokens) in prize.iter() {
+                    Promise::new(account_id.clone()).transfer(*tokens);
+                }
+            }
             self.challenges.remove(&env::predecessor_account_id());
         } else {
             panic_str("Challenge is not finished yet");
@@ -172,8 +189,8 @@ impl Contract {
         self.challenges.insert(&account_id, &challenge);
     }
 
-    pub fn abandon_challenge(&mut self) {
-        let caller = env::predecessor_account_id();
-        self.challenges.remove(&caller);
-    }
+    // pub fn abandon_challenge(&mut self) {
+    //     let caller = env::predecessor_account_id();
+    //     self.challenges.remove(&caller);
+    // }
 }
