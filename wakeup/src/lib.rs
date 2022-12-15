@@ -84,14 +84,13 @@ impl ChallengeState {
     }
 
     fn final_prize(&self) -> Option<Balance> {
+        if self.lives_used >= self.config.lives {
+            return Some(0);
+        }
         if self.days_passed < self.config.days {
             return None;
         }
-        if self.lives_used < self.config.lives {
-            Some(self.prize)
-        } else {
-            Some(0)
-        }
+        Some(self.prize)
     }
 }
 
