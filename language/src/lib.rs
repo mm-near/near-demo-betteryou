@@ -71,6 +71,8 @@ impl Contract {
         language: String,
         duolingo_username: String,
         quota_per_day: u32,
+        total_days: u32,
+        total_lives: u32,
     ) {
         if let Some(_challenge) = self.challenges.get(&env::predecessor_account_id()) {
             env::panic_str("Challenge already present");
@@ -78,10 +80,10 @@ impl Contract {
         self.challenges.insert(
             &env::predecessor_account_id(),
             &ChallengeState {
-                total_days: 30,
-                total_lives: 3,
-                days_left: 30,
-                lives_left: 3,
+                total_days,
+                total_lives,
+                days_left: total_days,
+                lives_left: total_lives,
                 quota_per_day,
                 total_xp: 0,
                 current_daily_xp: 0,
@@ -97,6 +99,7 @@ impl Contract {
             },
         );
     }
+    #[private]
     pub fn admin_update_challenge(&mut self, update: Vec<(AccountId, u32)>) {
         let now: Timestamp = env::block_timestamp();
         for i in 0..update.len() {
@@ -167,5 +170,10 @@ impl Contract {
             .funding
             .fund(&env::predecessor_account_id(), env::attached_deposit());
         self.challenges.insert(&account_id, &challenge);
+    }
+
+    pub fn abandon_challenge(&mut self) {
+        let caller = env::predecessor_account_id();
+        self.challenges.remove(&caller);
     }
 }
