@@ -31,6 +31,7 @@ pub struct ChallengeState {
     language: String,
     quota_per_day: u32,
     total_xp: u32,
+    day_start_xp: u32,
     current_daily_xp: u32,
     register_timestamp: Timestamp,
     days_passed: u64,
@@ -85,6 +86,7 @@ impl Contract {
                 quota_per_day,
                 total_xp: 0,
                 current_daily_xp: 0,
+                day_start_xp: 0,
                 duolingo_username,
                 language,
                 register_timestamp: env::block_timestamp(),
@@ -97,29 +99,33 @@ impl Contract {
         let now: Timestamp = env::block_timestamp();
         for i in 0..update.len() {
             // Check if it's a new day for all of the challenges based on their register timestamp
+            let mut previous_val = self.challenges.get(&update[i].0).unwrap();
             let day_start = self
                 .challenges
                 .get(&update[i].0)
                 .unwrap()
                 .register_timestamp
-                + self.challenges.get(&update[i].0).unwrap().days_passed * DAY;
-            if now < day_start {
+                + self
+                    .challenges
+                    .get(&update[i].0)
+                    .unwrap()
+                    .days_passed
+                    .checked_add(1)
+                    .unwrap()
+                    * DAY;
+            if now > day_start {
                 // Is the challenge under the quota for the day or not
                 if self.challenges.get(&update[i].0).unwrap().quota_per_day
                     <= self.challenges.get(&update[i].0).unwrap().current_daily_xp
                 {
-                    self.admin_move_day(&update[i].0);
+                    self.admin_move_day(&update[i].0, previous_val.total_xp);
                 } else {
-                    self.admin_fail_day(&update[i].0);
+                    self.admin_fail_day(&update[i].0, previous_val.total_xp);
                 }
             }
-            let mut previous_val = self.challenges.get(&update[i].0).unwrap();
             let incoming_value = &update[i].1;
-            previous_val.current_daily_xp = previous_val
-                .current_daily_xp
-                .checked_add(*incoming_value)
-                .unwrap();
-            previous_val.total_xp = previous_val.total_xp.checked_add(*incoming_value).unwrap();
+            previous_val.total_xp = *incoming_value;
+            previous_val.current_daily_xp = *incoming_value - previous_val.day_start_xp;
             self.challenges.insert(&update[i].0, &previous_val);
         }
     }
@@ -133,31 +139,22 @@ impl Contract {
         }
     }
 
-    pub fn admin_check_successful_day(&mut self) {
-        let all_challenges = self.challenges.to_vec();
-        for i in 0..all_challenges.len() {
-            if all_challenges[i].1.quota_per_day <= all_challenges[i].1.current_daily_xp {
-                self.admin_move_day(&all_challenges[i].0);
-            } else {
-                self.admin_fail_day(&all_challenges[i].0);
-            }
-        }
-    }
-
-    fn admin_move_day(&mut self, account_id: &AccountId) {
+    fn admin_move_day(&mut self, account_id: &AccountId, day_start_xp: u32) {
         let mut previous_val = self.challenges.get(account_id).unwrap();
         previous_val.days_left = previous_val.days_left.checked_sub(1).unwrap();
         previous_val.days_passed = previous_val.days_passed.checked_add(1).unwrap();
         previous_val.current_daily_xp = 0;
+        previous_val.day_start_xp = day_start_xp;
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
-    fn admin_fail_day(&mut self, account_id: &AccountId) {
+    fn admin_fail_day(&mut self, account_id: &AccountId, day_start_xp: u32) {
         let mut previous_val = self.challenges.get(account_id).unwrap();
         previous_val.days_left = previous_val.days_left.checked_sub(1).unwrap();
         previous_val.days_passed = previous_val.days_passed.checked_add(1).unwrap();
         previous_val.lives_left = previous_val.lives_left.checked_sub(1).unwrap();
         previous_val.current_daily_xp = 0;
+        previous_val.day_start_xp = day_start_xp;
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
