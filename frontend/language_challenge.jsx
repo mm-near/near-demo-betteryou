@@ -7,8 +7,7 @@ const testnetWidgets = {
 
 const widgets = testnetWidgets;
 
-// TODO: change to a different contract
-const challengeState = Near.view("dummy.betteryou.testnet", "get_state_for_user", {
+const challengeState = Near.view("language.betteryou.testnet", "get_state_for_user", {
     account_id: accountId,
 });
 
@@ -19,9 +18,9 @@ if (!challengeState) {
 
 const customBox = (
     <div>
-        <h1 style={{ color: "black" }}> Language (mock version) </h1>
+        <h1 style={{ color: "black" }}> Language </h1>
         <b>{accountId}</b> is participating in this challenge.
-        They have committed to learn <b>German</b> every day for <b>{challengeState["total_days"]} days</b>
+        They have committed to learn <b>{challengeState["language"]}</b> every day for <b>{challengeState["total_days"]} days</b>
         Do you want to support them ?
     </div>
 );
