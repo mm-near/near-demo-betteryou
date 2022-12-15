@@ -383,6 +383,7 @@ dependencies = [
 name = "dummy"
 version = "1.0.0"
 dependencies = [
+ "funding",
  "near-sdk",
  "serde",
  "uint",
@@ -433,6 +434,14 @@ dependencies = [
  "rand 0.8.5",
  "rustc-hex",
  "static_assertions",
+]
+
+[[package]]
+name = "funding"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "serde",
 ]
 
 [[package]]

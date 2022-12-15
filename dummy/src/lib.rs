@@ -1,3 +1,4 @@
+use funding::FundingEngine;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::env::panic_str;
 use near_sdk::serde::Serialize;
@@ -18,7 +19,7 @@ pub struct ChallengeState {
     total_lives: u32,
     days_left: u32,
     lives_left: u32,
-    reward: u32,
+    funding: FundingEngine,
 }
 
 impl Default for Contract {
@@ -40,6 +41,7 @@ impl Contract {
         self.challenges.get(&env::predecessor_account_id()).unwrap()
     }
 
+    #[payable]
     pub fn create_challenge(&mut self) {
         if self.challenges.contains_key(&env::predecessor_account_id()) {
             env::panic_str("Challenge already present");
@@ -51,9 +53,18 @@ impl Contract {
                 total_lives: 3,
                 days_left: 30,
                 lives_left: 3,
-                reward: 1,
+                funding: FundingEngine::new(env::predecessor_account_id(), env::attached_deposit()),
             },
         );
+    }
+
+    #[payable]
+    pub fn add_price(&mut self, account_id: AccountId) {
+        let mut challenge = self.challenges.get(&account_id).unwrap();
+        challenge
+            .funding
+            .fund(env::predecessor_account_id(), env::attached_deposit());
+        self.challenges.insert(&account_id, &challenge);
     }
 
     pub fn cleanup_challenge(&mut self) {

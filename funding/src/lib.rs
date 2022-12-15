@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 
-use near_sdk::{AccountId, Balance};
+use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::{serde::Serialize, AccountId, Balance};
 
-#[derive(Debug)]
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Debug)]
+
 pub struct Stake {
     backer: AccountId,
     value: Balance,
 }
 
+#[derive(BorshDeserialize, BorshSerialize, Serialize)]
 pub struct FundingEngine {
     founder: AccountId,
     initial_stake: Balance,

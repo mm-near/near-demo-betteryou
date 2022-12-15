@@ -39,6 +39,20 @@ const renderProgressBar = (percentFull) => (
     </div>
 );
 
+let reward = challengeState["funding"]["initial_stake"] || 0;
+let backers = 0;
+
+if (challengeState["funding"]["backers"]) {
+    let array = challengeState["funding"]["backers"];
+    for (let index = 0; index < array.length; index++) {
+        const element = array[index];
+        reward += element["value"];
+        backers += 1;
+    }
+}
+
+let reward_str = Number(reward / 1_000_000_000_000_000_000_000_000).toFixed(1);
+
 
 return (
 
@@ -68,8 +82,8 @@ return (
 
                 <div style={otherSectionDivStyle}>
                     <h2>Current Rewards</h2>
-                    <span style={{ fontSize: 26 + "px", fontWeigth: "bold" }}> {challengeState["reward"]} NEAR </span><br />
-                    From 3 people <br />
+                    <span style={{ fontSize: 26 + "px", fontWeigth: "bold" }}> {reward_str} NEAR </span><br />
+                    From {backers} people <br />
                     <button>Send Reward</button>
                 </div>
 
