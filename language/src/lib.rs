@@ -1,9 +1,9 @@
+use funding::FundingEngine;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::UnorderedMap;
 use near_sdk::env::panic_str;
 use near_sdk::serde::Serialize;
 use near_sdk::{env, near_bindgen, AccountId};
-
-use near_sdk::collections::UnorderedMap;
 
 // Full seconds since UNIX_EPOCH.
 pub type Timestamp = u64;
@@ -11,7 +11,7 @@ pub type Timestamp = u64;
 // Seconds
 pub type Duration = u64;
 
-const DAY: Duration = 24 * 60 * 60;
+const DAY: Duration = 86400000000000;
 
 // Define the contract structure
 #[near_bindgen]
@@ -26,7 +26,6 @@ pub struct ChallengeState {
     total_lives: u32,
     days_left: u32,
     lives_left: u32,
-    reward: u32,
     duolingo_username: String,
     language: String,
     quota_per_day: u32,
@@ -35,6 +34,7 @@ pub struct ChallengeState {
     current_daily_xp: u32,
     register_timestamp: Timestamp,
     days_passed: u64,
+    funding: FundingEngine,
 }
 #[derive(BorshDeserialize, BorshSerialize, Serialize)]
 pub struct DuolingoAccount {
@@ -82,7 +82,6 @@ impl Contract {
                 total_lives: 3,
                 days_left: 30,
                 lives_left: 3,
-                reward: 1,
                 quota_per_day,
                 total_xp: 0,
                 current_daily_xp: 0,
@@ -91,10 +90,13 @@ impl Contract {
                 language,
                 register_timestamp: env::block_timestamp(),
                 days_passed: 0,
+                funding: FundingEngine::new(
+                    &env::predecessor_account_id(),
+                    env::attached_deposit(),
+                ),
             },
         );
     }
-
     pub fn admin_update_challenge(&mut self, update: Vec<(AccountId, u32)>) {
         let now: Timestamp = env::block_timestamp();
         for i in 0..update.len() {
@@ -129,7 +131,6 @@ impl Contract {
             self.challenges.insert(&update[i].0, &previous_val);
         }
     }
-
     pub fn cleanup_challenge(&mut self) {
         let challenge = self.get_challenge();
         if challenge.days_left == 0 || challenge.lives_left == 0 {
@@ -157,5 +158,14 @@ impl Contract {
         previous_val.day_start_xp = day_start_xp;
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
+    }
+
+    #[payable]
+    pub fn add_price(&mut self, account_id: AccountId) {
+        let mut challenge = self.challenges.get(&account_id).unwrap();
+        challenge
+            .funding
+            .fund(&env::predecessor_account_id(), env::attached_deposit());
+        self.challenges.insert(&account_id, &challenge);
     }
 }
