@@ -32,6 +32,6 @@ const challengeLogo = "https://user-images.githubusercontent.com/91919554/207791
 
 return (
     <div>
-        <Widget src={widgets["challengePlaqTemplate"]} props={{ challengeState, customBox, challengeLogo }} />
+        <Widget src={widgets["challengePlaqTemplate"]} props={{ challengeState, customBox, challengeLogo, accountId }} />
     </div>
 );
