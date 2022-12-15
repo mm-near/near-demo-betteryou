@@ -17,7 +17,7 @@ const items = following
 const testnetWidgets = {
     itemscroll: "nft12.testnet/widget/ItemScroll",
     profileLine: "bazbar.testnet/widget/ProfileLine",
-    challengePlaq: "nft12.testnet/widget/plaq",
+    allUserChallenges: "nft12.testnet/widget/all_user_challenges",
 };
 
 const widgets = testnetWidgets;
@@ -31,7 +31,7 @@ const renderItem = (a) => (
 
         <span className="text-muted">challenge:</span>
         <Widget
-            src={widgets["challengePlaq"]}
+            src={widgets["allUserChallenges"]}
             props={{ accountId: a, hideLogo: true }}
         />
     </div>

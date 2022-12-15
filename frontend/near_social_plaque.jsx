@@ -46,6 +46,13 @@ if (props.hideLogo) {
   logo = "";
 }
 
+const renderProgressBar = (percentFull) => (
+  <div style={progressBarOutside}>
+    <div style={{ height: 20 + "px", width: percentFull + "%", backgroundColor: "#000000", borderRadius: 5 + "px" }}> </div>
+  </div>
+);
+
+
 return (
 
   <div>
@@ -65,16 +72,13 @@ return (
           <h2>Progress</h2>
           Remaining days
 
-          <div style={progressBarOutside}>
-            <div style={{ height: 20 + "px", width: daysPercentPassed + "%", backgroundColor: "#000000", borderRadius: 5 + "px" }}> </div>
-          </div>
+          {renderProgressBar(daysPercentPassed)}
           <span style={{ float: "right" }}>{score["days_left"]} days</span>
           <br />
 
           Available Skip Days
-          <div style={progressBarOutside}>
-            <div style={{ height: 20 + "px", width: skipDaysLeftPercent + "%", backgroundColor: "#000000", borderRadius: 5 + "px" }}> </div>
-          </div>
+          {renderProgressBar(skipDaysLeftPercent)}
+
           <span style={{ float: "right" }}>{score["lives_left"]} days</span>
 
         </div>
