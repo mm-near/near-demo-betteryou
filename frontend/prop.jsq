@@ -1,0 +1,20 @@
+{
+  "accountId": "nft12.testnet",
+  "hideLogo": true,
+  "ala": "bar",
+  "challengeState": {
+    "days_left": 4,
+    "total_days": 10,
+    "lives_left": 1,
+    "total_lives": 5,
+    "funding": {
+      "initial_stake": 4e+24,
+      "backers": [
+        {
+          "backer": "foo",
+          "value": 5e+25
+        }
+      ]
+    }
+  }
+}

@@ -54,6 +54,55 @@ if (challengeState["funding"]["backers"]) {
 let reward_str = Number(reward / 1_000_000_000_000_000_000_000_000).toFixed(1);
 
 
+
+let challengeStatus = "";
+let currentRewards = "";
+
+if (challengeState["days_left"] == 0) {
+    challengeStatus = "success";
+    let collectRewardButton = "";
+    if (props.accountId == context.accountId) {
+        collectRewardButton = (<button>Collect your Reward</button>)
+    }
+    currentRewards = (
+        <div style={otherSectionDivStyle}>
+            <h2>Challenge finished succesfully !! </h2>
+            <span style={{ fontSize: 26 + "px", fontWeigth: "bold" }}> {reward_str} NEAR </span><br />
+            From {backers} people <br />
+            {collectRewardButton}
+
+        </div>
+    )
+} else if (challengeState["lives_left"] == 0) {
+    challengeStatus = "failed";
+    let resetRewardButton = "";
+    if (props.accountId == context.accountId) {
+        resetRewardButton = (<button>Reset your challenge - and try again</button>)
+    }
+    currentRewards = (
+        <div style={otherSectionDivStyle}>
+            <h2>!! Challenge Failed !!  </h2>
+            <span style={{ fontSize: 26 + "px", fontWeigth: "bold" }}> {reward_str} NEAR </span><br />
+            From {backers} people <br />
+
+            {resetRewardButton}
+        </div>
+    )
+} else {
+    challengeStatus = "inprogress";
+
+    currentRewards = (
+        <div style={otherSectionDivStyle}>
+            <h2>Current Rewards</h2>
+            <span style={{ fontSize: 26 + "px", fontWeigth: "bold" }}> {reward_str} NEAR </span><br />
+            From {backers} people <br />
+            <button>Send Reward</button>
+        </div>
+    )
+}
+
+
+
 return (
 
     <div>
@@ -80,12 +129,7 @@ return (
                 </div>
                 <hr />
 
-                <div style={otherSectionDivStyle}>
-                    <h2>Current Rewards</h2>
-                    <span style={{ fontSize: 26 + "px", fontWeigth: "bold" }}> {reward_str} NEAR </span><br />
-                    From {backers} people <br />
-                    <button>Send Reward</button>
-                </div>
+                {currentRewards}
 
                 <hr />
                 <div style={otherSectionDivStyle}>
