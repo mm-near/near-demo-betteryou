@@ -1,0 +1,19 @@
+{
+  "name": "oracle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "duolingo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "duo-wrapper": "^1.3.0",
+    "duolingo-api": "^1.0.2",
+    "near-api-js": "^1.1.0",
+    "node-cron": "^3.0.0",
+    "node-fetch": "^3.3.0"
+  }
+}
