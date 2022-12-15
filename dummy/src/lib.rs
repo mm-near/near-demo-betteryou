@@ -53,7 +53,10 @@ impl Contract {
                 total_lives: 3,
                 days_left: 30,
                 lives_left: 3,
-                funding: FundingEngine::new(env::predecessor_account_id(), env::attached_deposit()),
+                funding: FundingEngine::new(
+                    &env::predecessor_account_id(),
+                    env::attached_deposit(),
+                ),
             },
         );
     }
@@ -63,7 +66,7 @@ impl Contract {
         let mut challenge = self.challenges.get(&account_id).unwrap();
         challenge
             .funding
-            .fund(env::predecessor_account_id(), env::attached_deposit());
+            .fund(&env::predecessor_account_id(), env::attached_deposit());
         self.challenges.insert(&account_id, &challenge);
     }
 
