@@ -31,7 +31,7 @@ const paragraphContent = {
     fontFamily: 'Roboto',
     fontWeight: "400",
     fontSize: "20px",
-    lineHeight: "130 %",
+    lineHeight: "130%",
     color: "#49454F",
 };
 
