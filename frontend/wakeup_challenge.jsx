@@ -1,9 +1,9 @@
 const challengeLogo =
     "https://user-images.githubusercontent.com/91919554/208149479-340325cd-5151-4594-b7d6-ad91abe9d1ec.png";
 
-const plaqTemplateWidget = "bazbar.testnet/widget/plaque_v2";
-const signupTemplateWidget = "betteryou.testnet/widget/wakeup-signup";
-const contractId = "dev-1671218065962-21755774698694";
+const plaqTemplateWidget = "betteryou.near/widget/plaque_v2";
+const signupTemplateWidget = "betteryou.near/widget/wakeup_signup";
+const contractId = "wakeup.betteryou.near";
 const accountId = props.accountId ?? context.accountId;
 
 let contractChallengeState = None;

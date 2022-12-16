@@ -1,26 +1,33 @@
 const accountId = props.accountId ?? context.accountId;
 
 // There is no social graph in DEV - so use the hardcoded list:
-const items = ["bazbar.testnet", "mm-near.testnet", "baduser"];
+//const items = ["bazbar.testnet", "mm-near.testnet", "baduser"];
 
-/*
+
 const following = Social.keys(`${accountId}/graph/follow/*`, "final", {
-  return_type: "BlockHeight",
-  values_only: true,
+    return_type: "BlockHeight",
+    values_only: true,
 });
 
 const items = following
-  ? Object.keys(following[accountId].graph.follow || {})
-  : null;
-*/
+    ? Object.keys(following[accountId].graph.follow || {})
+    : null;
 
+/*
 const testnetWidgets = {
     itemscroll: "nft12.testnet/widget/ItemScroll",
     profileLine: "bazbar.testnet/widget/ProfileLine",
     allUserChallenges: "bazbar.testnet/widget/all_user_challenges",
+};*/
+
+const mainnetWidgets = {
+    itemscroll: "mob.near/widget/ItemFeed",
+    profileLine: "mob.near/widget/ProfileLine",
+    allUserChallenges: "betteryou.neaer/widget/all_user_challenges",
 };
 
-const widgets = testnetWidgets;
+
+const widgets = mainnetWidgets;
 
 const renderItem = (a) => (
     <div key={JSON.stringify(a)} className="mb-2">

@@ -2,8 +2,8 @@ const accountId = props.accountId ?? context.accountId;
 
 
 const testnetWidgets = {
-    languageChallenge: "bazbar.testnet/widget/language_challenge",
-    wakeupChallenge: "bazbar.testnet/widget/wakeup-challenge",
+    languageChallenge: "betteryou.near/widget/language_challenge",
+    wakeupChallenge: "betteryou.near/widget/wakeup_challenge",
 };
 
 let logo = (<img src="https://user-images.githubusercontent.com/91919554/207791330-aa5bc143-b51d-49b0-a0be-eae26365f1f2.png" />);

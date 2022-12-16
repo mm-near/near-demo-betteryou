@@ -95,7 +95,7 @@ const commitButton = {
 /// JS
 ///
 
-const contractId = "dev-1671218049971-36407954871979";
+const contractId = "language.betteryou.near";
 const accountId = context.accountId;
 
 if (!accountId) {

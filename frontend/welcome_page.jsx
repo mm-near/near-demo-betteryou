@@ -1,7 +1,7 @@
-const userChallengesWidget = "bazbar.testnet/widget/all_user_challenges"
-const wakeupSignupWidget = "/#/bazbar.testnet/widget/wakeup-challenge"
-const languageSignupWidget = "/#/bazbar.testnet/widget/language_challenge"
-const friendsWidget = "/#/bazbar.testnet/widget/friendlist"
+const userChallengesWidget = "betteryou.near/widget/all_user_challenges"
+const wakeupSignupWidget = "/#/betteryou.near/widget/wakeup_challenge"
+const languageSignupWidget = "/#/betteryou.near/widget/language_challenge"
+const friendsWidget = "/#/betteryou.near/widget/friendslist"
 
 const header = {
     background: "#33333D",

@@ -1,9 +1,9 @@
 const challengeLogo =
     "https://user-images.githubusercontent.com/91919554/208149476-d77664d7-868d-4995-8bac-feeb026cd64e.png";
 
-const plaqTemplateWidget = "bazbar.testnet/widget/plaque_v2";
-const signupTemplateWidget = "bazbar.testnet/widget/language-signup";
-const contractId = "dev-1671218049971-36407954871979";
+const plaqTemplateWidget = "betteryou.near/widget/plaque_v2";
+const signupTemplateWidget = "betteryou.near/widget/language_signup";
+const contractId = "language.betteryou.near";
 const accountId = props.accountId ?? context.accountId;
 
 let contractChallengeState = None;

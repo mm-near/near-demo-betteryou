@@ -94,8 +94,7 @@ const commitButton = {
 /// JS
 ///
 
-//const contractId = "wakeup.betteryou.testnet";
-const contractId = "dev-1671218065962-21755774698694"
+const contractId = "wakeup.betteryou.near";
 const accountId = context.accountId;
 
 if (!accountId) {
