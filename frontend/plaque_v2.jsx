@@ -6,7 +6,7 @@ let daysLeft = challengeState["days_left"];
 let daysTotal = challengeState["total_days"];
 let livesTotal = challengeState["total_lives"];
 let livesLeft = challengeState["lives_left"];
-let failedDaysList = challengeState["failed_days_list"] || [];
+let dayStatus = challengeState["day_status"] || [];
 
 
 
@@ -17,11 +17,11 @@ if (daysLeft == 0) {
     challengeStatus = "failed";
 }
 
-let reward = challengeStatus["funding"]["initial_stake"] || 0;
+let reward = challengeState["funding"]["initial_stake"] || 0;
 let backers = 0;
 
-if (challengeStatus["funding"]["backers"]) {
-    let array = challengeStatus["funding"]["backers"];
+if (challengeState["funding"]["backers"]) {
+    let array = challengeState["funding"]["backers"];
     for (let index = 0; index < array.length; index++) {
         const element = array[index];
         reward += element["value"];
@@ -187,10 +187,10 @@ const renderDot = (day, a) => {
     )
 };
 
-const renderDots = (totalDays, daysLeft, failedDaysList) => {
+const renderDots = (totalDays, daysLeft, dayStatus) => {
     let results = [];
     for (let day = 0; day < totalDays; day++) {
-        if (failedDaysList.includes(day)) {
+        if (dayStatus.length > day && dayStatus[day] == false) {
             results.push(renderDot(day + 1, -1));
         } else {
             if (day < (totalDays - daysLeft)) {
@@ -206,25 +206,13 @@ const renderDots = (totalDays, daysLeft, failedDaysList) => {
 const topBox = "";
 
 if (challengeStatus == 'inprogress') {
-    let target = "You";
-    if (isOwner == false) {
-        target = props.accountId;
-    }
-    let button = "";
 
-    if (isOwner) {
-        button = (<button style={activeButton}>CHECK IN NOW</button>);
-    }
 
     topBox = (
         <div style={challengeBox}>
             <div style={challengeBoxTitle}>Summary</div>
             <div style={challengeBoxContents}>
-
-                {target} commited to waking up every day for <b>30 days</b> between <b>6:00-7:00</b>.
-                <br />
-                {button}
-                <button style={inactiveButton}>CHECK IN<br />Active in 2h 15m 30s</button>
+                {props.customBox}
             </div>
         </div>
     )
@@ -233,9 +221,7 @@ if (challengeStatus == 'inprogress') {
         <div style={challengeBox}>
             <div style={challengeBoxTitle}>Sorry</div>
             <div style={failedChallengeBoxContents}>
-                You lost the challenge.
-                <br />
-                <button style={activeButton}>Reset challenge</button>
+                {props.customBox}
             </div>
         </div>
     )
@@ -244,12 +230,9 @@ if (challengeStatus == 'inprogress') {
         <div style={challengeBox}>
             <div style={challengeBoxTitle}>Congratulations</div>
             <div style={successChallengeBoxContents}>
-                You won the challenge
-                <br />
-                <button style={activeButton}>Claim reward</button>
+                {props.customBox}
             </div>
         </div>
-
     )
 }
 
@@ -269,7 +252,7 @@ if (isOwner == false) {
 
 return (
     <div style={mainBox}>
-        <div style={challengeSummary}> <img src="https://user-images.githubusercontent.com/91919554/208149479-340325cd-5151-4594-b7d6-ad91abe9d1ec.png"></img> Wake up earlier</div>
+        <div style={challengeSummary}> <img src={props.challengeLogo}></img> {props.challengeMotto}</div>
 
         {topBox}
 
@@ -290,7 +273,7 @@ return (
                     <div style={challengeBoxContents}>
 
                         <div>
-                            {renderDots(daysTotal, daysLeft, failedDaysList)}
+                            {renderDots(daysTotal, daysLeft, dayStatus)}
                         </div >
                         <div style={remainingBlock}>
                             <b>Remaining:</b> {daysLeft} days ({livesLeft} skip days available)
