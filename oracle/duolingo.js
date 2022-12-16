@@ -46,9 +46,14 @@ async function run() {
         const duo = new Duo(challenge[1].duolingo_username.toString());
         const courses = await duo.getCourses();
         const result = courses.find(({ title }) => title === challenge[1].language);
-        updateArray.push([challenge[0], result.xp]);
+        if (result) {
+            updateArray.push([challenge[0], result.xp]);
+        }
     }
-    await contract.admin_update_challenge({ update: updateArray });
+    console.log(updateArray);
+    try { await contract.admin_update_challenge({ update: updateArray }) } catch (e) {
+        console.log(e);
+    };
 }
 
 
