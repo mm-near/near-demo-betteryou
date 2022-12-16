@@ -35,12 +35,7 @@ pub struct ChallengeState {
     register_timestamp: Timestamp,
     days_passed: u64,
     funding: FundingEngine,
-}
-#[derive(BorshDeserialize, BorshSerialize, Serialize)]
-pub struct DuolingoAccount {
-    duolingo_username: String,
-    language: String,
-    account_id: AccountId,
+    day_status: Vec<bool>,
 }
 
 impl Default for Contract {
@@ -58,13 +53,14 @@ impl Contract {
         self.challenges.get(&account_id).unwrap()
     }
 
-    pub fn get_challenge(&self) -> ChallengeState {
-        self.challenges.get(&env::predecessor_account_id()).unwrap()
+    pub fn get_challenge(&self, account_id: AccountId) -> Option<ChallengeState> {
+        self.challenges.get(&account_id)
     }
 
     pub fn get_all_state(&self) -> Vec<(AccountId, ChallengeState)> {
         self.challenges.to_vec()
     }
+
     #[payable]
     pub fn create_challenge(
         &mut self,
@@ -96,6 +92,7 @@ impl Contract {
                     &env::predecessor_account_id(),
                     env::attached_deposit(),
                 ),
+                day_status: Vec::new(),
             },
         );
     }
@@ -135,8 +132,8 @@ impl Contract {
         }
     }
 
-    pub fn cleanup_challenge(&mut self) {
-        let challenge = self.get_challenge();
+    pub fn finish(&mut self) {
+        let challenge = self.get_challenge(env::current_account_id()).unwrap();
         if challenge.days_left == 0 || challenge.lives_left == 0 {
             if challenge.days_left == 0 && challenge.lives_left > 0 {
                 let prize = challenge.funding.resolve(true);
@@ -166,6 +163,7 @@ impl Contract {
         previous_val.days_passed = previous_val.days_passed.checked_add(1).unwrap();
         previous_val.current_daily_xp = 0;
         previous_val.day_start_xp = day_start_xp;
+        previous_val.day_status.push(true);
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
@@ -176,6 +174,7 @@ impl Contract {
         previous_val.lives_left = previous_val.lives_left.checked_sub(1).unwrap();
         previous_val.current_daily_xp = 0;
         previous_val.day_start_xp = day_start_xp;
+        previous_val.day_status.push(false);
         self.challenges
             .insert(&env::predecessor_account_id(), &previous_val);
     }
