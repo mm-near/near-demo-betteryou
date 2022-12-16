@@ -49,6 +49,22 @@ const messageBox = {
     marginRight: "17px",
     padding: "35px",
     lineHeight: "32px",
+    verticalAlign: "top",
+}
+
+const commitButton = {
+    backgroundColor: "#2D949A",
+    color: "white",
+    borderRadius: "100px",
+    border: "0px",
+    paddingLeft: "24px",
+    paddingRight: "24px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    marginTop: "20px",
+    marginLeft: "auto",
+    marginRight: "auto",
+
 }
 
 
@@ -94,6 +110,26 @@ return (
                     Claim your reward if you achieve your goals.
                 </div>
             </div>
+        </div>
+        <div style={paragraph}>
+            <div style={paragraphTitle}>
+                Pick a challenge to commit to:
+            </div>
+            <div style={paragraphContent}>
+                <div style={messageBox}>
+
+                    <b>Wake up earlier</b><br /><br />
+                    Wake up every day at a given timeframe <br />
+                    <button style={commitButton}>START CHALLENGE</button>
+                </div>
+                <div style={messageBox}>
+
+                    <b>Learn a new language</b><br /><br />
+                    Learn a language every day <br />
+                    <button style={commitButton}>START CHALLENGE</button>
+                </div>
+            </div>
+
         </div>
     </div>
 )
