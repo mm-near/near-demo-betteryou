@@ -1,0 +1,156 @@
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+
+    <style>
+        body {
+            font-family: 'Inter';
+
+        }
+
+        .signUp {
+            background: #F7F7F7;
+            width: 800px;
+            border-radius: 10px;
+            text-align: center;
+
+            padding: 20px;
+            align-items: center;
+        }
+
+        .challengeTitle {
+            padding: 20px;
+
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 44px;
+            line-height: 32px;
+        }
+
+        .challengeSubTitle {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 20px;
+            line-height: 130%;
+        }
+
+        .howItWorks {
+            width: 50%;
+            margin-left: 25%;
+            margin-top: 30px;
+            background: #F4FEFF;
+            border-radius: 6px;
+
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 130%;
+            color: #49454F;
+            padding-left: 18px;
+            padding-right: 18px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .howItWorks>span {
+            font-family: 'Inter';
+            font-weight: 700;
+        }
+
+        .inputBox {
+            padding: 10px;
+            border: 1px solid black;
+            width: 20%;
+            margin-left: 40%;
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .inputBox>input {
+            width: 80%;
+            height: 30px;
+        }
+
+        .inputBox>select {
+            width: 80%;
+            height: 30px;
+        }
+
+
+        .inputBoxTitle {
+            display: block;
+            padding-bottom: 5px;
+            font-size: 12px;
+            text-align: left;
+            padding-left: 10%;
+        }
+
+        .commitButton {
+            background-color: #2D949A;
+            color: white;
+            border-radius: 100px;
+            border: 0px;
+            padding-left: 24px;
+            padding-right: 24px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="signUp">
+
+        <div class="challengeTitle">Wake up earlier</div>
+        <div class="challengeSubTitle">Commit to waking up every day at given time frame</div>
+
+        <div class="howItWorks">
+            <span>How it works:</span>
+            Once you commit to the challenge, you need to check in every morning on your active challenges page. Get
+            your
+            money back if you succeed!
+        </div>
+
+        <div class="inputBox">
+            <span class="inputBoxTitle">Wake up period</span>
+            <select name="wakeupTime" id="wakeupTime">
+                <option value="500">5:00AM - 6:00AM</option>
+                <option value="600" selected>6:00AM - 7:00AM</option>
+                <option value="700">7:00AM - 8:00AM</option>
+            </select>
+        </div>
+        <div class="inputBox">
+            <span class="inputBoxTitle">Duration</span>
+            <select name="duration" id="duration">
+                <option value="10">10 days</option>
+                <option value="20">20 days</option>
+                <option value="30" selected>30 days</option>
+            </select>
+        </div>
+        <div class="inputBox">
+            <span class="inputBoxTitle">Permitted Skip Days</span>
+            <select name="skipDays" id="skipDays">
+                <option value="0">0 days - hardcore option</option>
+                <option value="3" selected>3 days</option>
+                <option value="6">6 days</option>
+            </select>
+        </div>
+        <div class="inputBox">
+            <span class="inputBoxTitle">NEAR to stake</span>
+            <input value="0.0" />
+        </div>
+        <button class="commitButton">COMMIT TO CHALLENGE</button>
+    </div>
+
+
+
+</body>
+
+</html>
