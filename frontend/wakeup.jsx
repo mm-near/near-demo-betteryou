@@ -6,6 +6,13 @@ const accountId = props.accountId ?? context.accountId;
 
 let contractChallengeState = None;
 
+// I can't properly handle inputs so here we go, global variables.
+let daysInputValue = 7;
+let livesInputValue = 2;
+let depositInputValue = 10;
+let startTimeInputValue = "06:00";
+let endTimeInputValue = "07:00";
+
 if (!accountId) {
     return "Please log in to view your own challenge or specify account id to view in props.";
 }
@@ -29,16 +36,22 @@ function get_first_day() {
 }
 
 function create_challenge() {
-    console.log("create challenge");
+    console.log("create challenge", "deposit", depositInputValue);
 
-    Near.call(contractId, "create_challenge", {
-        config: {
-            lives: 2,
-            days: 7,
-            first_day: get_first_day(),
-            timeout: 4 * 60 * 60,
+    Near.call(
+        contractId,
+        "create_challenge",
+        {
+            config: {
+                lives: parseInt(livesInputValue),
+                days: parseInt(daysInputValue),
+                first_day: get_first_day(),
+                timeout: 4 * 60 * 60,
+            },
         },
-    });
+        None,
+        parseFloat(depositInputValue) * Math.pow(10, 24)
+    );
 }
 
 function updateContractChallengeState() {
@@ -98,10 +111,40 @@ function getPublicNoChallenge() {
     return "No challenge found.";
 }
 
+function days_input_change(change) {
+    daysInputValue = change.target.value;
+}
+
+function lives_input_change(change) {
+    livesInputValue = change.target.value;
+}
+
+function deposit_input_change(change) {
+    depositInputValue = change.target.value;
+}
+
+function start_time_input_change(change) {
+    startTimeInputValue = change.target.value;
+}
+
+function end_time_input_change(change) {
+    endTimeInputValue = change.target.value;
+}
+
 function getOwnerNoChallenge() {
     return (
         <div>
             <h3>No challenge found, would you like to create a new challenge?</h3>
+            <br />
+            Number of days in challenge
+            <input type="text" id="days_input" onChange={days_input_change} />
+            <br />
+            Number of lives
+            <input type="text" id="lives_input" onChange={lives_input_change} />
+            <br />
+            Initial near deposit
+            <input type="text" id="deposit_input" onChange={deposit_input_change} />
+            <br />
             <br />
             <button onClick={create_challenge}>Create challenge</button> <br />
             <br />
@@ -109,6 +152,20 @@ function getOwnerNoChallenge() {
         </div>
     );
 }
+
+// What is the earliest time you want to wake up?
+// <input
+//   type="time"
+//   id="start_time_input"
+//   onChange={start_time_input_change}
+// />
+// <br />
+// What is the latest time you want to wake up?
+// <input
+//   type="time"
+//   id="start_time_input"
+//   onChange={end_time_input_change}
+// />
 
 function getNoChallenge() {
     if (isOwnerLoggedIn()) {
@@ -139,13 +196,13 @@ function time_diff_to_string(time_diff) {
 function getWakeUpButton() {
     const config = contractChallengeState.config;
     const button_msg = "I'm awake!";
-    const day_length = config.day_length;
+    const day_length = config.day_length ?? 24 * 60 * 60;
     const timeout = config.timeout;
     const start = config.first_day;
 
     const now = Math.floor(Date.now() / 1000);
     if (now < start) {
-        const start_date = new Date(start);
+        const start_date = new Date(1000 * start);
         const start_string = start_date.toString();
         return <div> The challenge will begin on {start_string} </div>;
     }
