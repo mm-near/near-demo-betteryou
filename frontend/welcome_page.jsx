@@ -144,6 +144,13 @@ return (
         <div style={paragraph}>
             <div style={paragraphTitle}>
                 Your current challenges:
+                <a
+                    href={
+                        "/#/" + userChallengesWidget + "?accountId=" + context.accountId
+                    }
+                >
+                    (link)
+                </a>
             </div>
             <div style={paragraphContent}>
                 <Widget src={userChallengesWidget}></Widget>
