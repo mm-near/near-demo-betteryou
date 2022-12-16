@@ -2,3 +2,9 @@
 # will have compiled files and executables
 debug/
 target/
+dummy/neardev/dev-account
+dummy/neardev/dev-account.env
+language/neardev/dev-account
+language/neardev/dev-account.env
+wakeup/neardev/dev-account
+wakeup/neardev/dev-account.env

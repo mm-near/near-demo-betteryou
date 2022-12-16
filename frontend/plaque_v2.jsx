@@ -243,8 +243,16 @@ if (isOwner == false) {
         <div style={challengeBox}>
             <div style={challengeBoxTitle}>Support with NEAR</div>
             <div style={challengeBoxContents}>
-                <input value="1.0"></input>
-                <button style={activeButton}>Support</button>
+                {props.supportBox}
+            </div>
+        </div>
+    )
+} else {
+    supportBox = (
+        <div style={challengeBox}>
+            <div style={challengeBoxTitle}>Abandon challenge</div>
+            <div style={challengeBoxContents}>
+                {props.abandonButton}
             </div>
         </div>
     )

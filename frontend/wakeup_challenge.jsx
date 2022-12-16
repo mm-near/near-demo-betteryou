@@ -245,7 +245,6 @@ function getOwnerCustomBox() {
             <br />
             <br />
             {getWakeUpButton()} <br />
-            {getAbandonButton()} <br />
         </div>
     );
 }
@@ -257,6 +256,28 @@ function getCustomBox() {
         return getPublicCustomBox();
     }
 }
+
+let supportValue = 1.0;
+
+function on_change_support(change) {
+    supportValue = parseFloat(change.target.value);
+    console.log("on_change_support", supportValue);
+}
+
+function add_support() {
+    Near.call(contractId, "add_prize", { accountId: accountId }, None,
+        parseFloat(supportValue) * Math.pow(10, 24));
+}
+
+function getSupportBox() {
+    return (
+        <div>
+            <input onChange={on_change_support}></input> NEAR
+            <button style={activeButton} onClick={add_support}>Support</button>
+        </div>
+    )
+}
+
 
 updateContractChallengeState();
 
@@ -279,6 +300,8 @@ return (
                 challengeLogo: challengeLogo,
                 challengeMotto: challengeMotto,
                 isOwner: isOwnerLoggedIn(),
+                abandonButton: getAbandonButton(),
+                supportBox: getSupportBox(),
             }}
         />
     </div>
