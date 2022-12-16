@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::env::panic_str;
 use near_sdk::{serde::Serialize, AccountId, Balance};
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Debug)]
@@ -17,6 +18,9 @@ pub struct FundingEngine {
     backers: Vec<Stake>,
 }
 
+// Don't allow too many backers (are refunds would be hard to fit in gas limit).
+const MAX_BACKERS: usize = 100;
+
 impl FundingEngine {
     pub fn new(founder: &AccountId, initial_stake: Balance) -> Self {
         Self {
@@ -28,6 +32,9 @@ impl FundingEngine {
 
     /// Funds the commitment.
     pub fn fund(&mut self, backer: &AccountId, value: Balance) {
+        if self.backers.len() >= MAX_BACKERS {
+            panic_str("Maximum amount of backers reached.");
+        }
         self.backers.push(Stake {
             backer: backer.clone(),
             value,
@@ -36,15 +43,17 @@ impl FundingEngine {
 
     /// Resolves the commitment and returns payouts to each backer.
     pub fn resolve(&self, success: bool) -> HashMap<AccountId, Balance> {
-        let total_stake =
-            self.initial_stake + self.backers.iter().map(|b| b.value).sum::<Balance>();
         let mut payouts = HashMap::<AccountId, Balance>::new();
-        payouts.insert(self.founder.clone(), if success { total_stake } else { 0 });
-        for backing in &self.backers {
-            payouts.insert(
-                backing.backer.clone(),
-                if success { 0 } else { backing.value },
-            );
+        if success {
+            // If challenge was successfull - all money goes to the founder.
+            let total_stake =
+                self.initial_stake + self.backers.iter().map(|b| b.value).sum::<Balance>();
+            payouts.insert(self.founder.clone(), total_stake);
+        } else {
+            // Return money to backers (the initial_stake will stay with the contract).
+            for backing in &self.backers {
+                payouts.insert(backing.backer.clone(), backing.value);
+            }
         }
         payouts
     }
@@ -135,7 +144,7 @@ mod tests {
         let my_account: AccountId = "me".parse().unwrap();
         let engine = FundingEngine::new(&my_account, 42);
         assert_eq!(engine.resolve(true), [(my_account.clone(), 42)].into());
-        assert_eq!(engine.resolve(false), [(my_account.clone(), 0)].into());
+        assert_eq!(engine.resolve(false), [].into());
     }
 
     #[test]
@@ -144,14 +153,8 @@ mod tests {
         let friend_account: AccountId = "friend".parse().unwrap();
         let mut engine = FundingEngine::new(&my_account, 10);
         engine.fund(&friend_account, 20);
-        assert_eq!(
-            engine.resolve(true),
-            [(my_account.clone(), 30), (friend_account.clone(), 0)].into()
-        );
-        assert_eq!(
-            engine.resolve(false),
-            [(my_account.clone(), 0), (friend_account.clone(), 20)].into()
-        );
+        assert_eq!(engine.resolve(true), [(my_account.clone(), 30)].into());
+        assert_eq!(engine.resolve(false), [(friend_account.clone(), 20)].into());
     }
 
     #[test]

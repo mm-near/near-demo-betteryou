@@ -1,7 +1,9 @@
+use funding::FundingEngine;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::unordered_map::UnorderedMap;
+use near_sdk::env::panic_str;
 use near_sdk::serde;
-use near_sdk::{env, log, near_bindgen, AccountId, Balance, PanicOnDefault, Promise};
+use near_sdk::{env, log, near_bindgen, AccountId, Promise};
 use std::time::Duration;
 
 // Full seconds since UNIX_EPOCH.
@@ -14,9 +16,11 @@ const DAY: DurationSeconds = 24 * 60 * 60;
 const MAX_DAYS: u64 = 1000;
 
 #[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
+#[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
     challenges: UnorderedMap<AccountId, ChallengeState>,
+    // TESTONLY: set custom day length.
+    day_length: Option<DurationSeconds>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, BorshDeserialize, BorshSerialize)]
@@ -26,8 +30,6 @@ pub struct ChallengeConfig {
     days: u64,
     first_day: TimestampSeconds,
     timeout: DurationSeconds,
-    // TESTONLY: set custom day length.
-    day_length: Option<DurationSeconds>,
 }
 
 impl ChallengeConfig {
@@ -45,9 +47,12 @@ impl ChallengeConfig {
 #[serde(crate = "near_sdk::serde")]
 pub struct ChallengeState {
     config: ChallengeConfig,
+    // TEST ONLY
+    day_length: Option<DurationSeconds>,
     days_passed: u64,
     lives_used: u64,
-    prize: Balance,
+    funding: FundingEngine,
+    day_status: Vec<bool>,
 }
 
 impl ChallengeState {
@@ -66,7 +71,7 @@ impl ChallengeState {
             }
             // Has a new day started?
             let day_start =
-                self.config.first_day + self.days_passed * self.config.day_length.unwrap_or(DAY);
+                self.config.first_day + self.days_passed * self.day_length.unwrap_or(DAY);
             if now < day_start {
                 log!("Finished processing all days till 'now'");
                 break;
@@ -75,39 +80,35 @@ impl ChallengeState {
             // Progress the challenge state by 1 day.
             self.days_passed += 1;
             if day_start + self.config.timeout >= now {
+                self.day_status.push(true);
                 log!("Day {} completed!", self.days_passed);
             } else {
                 log!("Day {} missing, lost a life!", self.days_passed);
                 self.lives_used += 1;
+                self.day_status.push(false);
             }
         }
     }
+}
 
-    fn final_prize(&self) -> Option<Balance> {
-        if self.lives_used >= self.config.lives {
-            return Some(0);
+impl Default for Contract {
+    fn default() -> Self {
+        Self {
+            challenges: UnorderedMap::new(b"v"),
+            day_length: None,
         }
-        if self.days_passed < self.config.days {
-            return None;
-        }
-        Some(self.prize)
     }
 }
 
 #[near_bindgen]
 impl Contract {
-    #[init]
-    pub fn new() -> Self {
-        Self {
-            challenges: UnorderedMap::new(b"v"),
-        }
-    }
-
+    #[private]
     pub fn reset(&mut self) {
-        if env::predecessor_account_id() != env::current_account_id() {
-            panic!("reset() can be called by admin only");
-        }
         self.challenges.clear();
+    }
+    #[private]
+    pub fn set_day_length(&mut self, day_length: DurationSeconds) {
+        self.day_length = Some(day_length);
     }
 
     #[payable]
@@ -121,9 +122,14 @@ impl Contract {
             &caller,
             &ChallengeState {
                 config,
+                day_length: self.day_length,
                 days_passed: 0,
                 lives_used: 0,
-                prize: env::attached_deposit(),
+                funding: FundingEngine::new(
+                    &env::predecessor_account_id(),
+                    env::attached_deposit(),
+                ),
+                day_status: Vec::new(),
             },
         );
     }
@@ -132,6 +138,7 @@ impl Contract {
         self.challenges.get(&account_id)
     }
 
+    // Must be called at the right hour of the day.
     pub fn update_challenge(&mut self) {
         let caller = env::predecessor_account_id();
         let mut ch = self.challenges.get(&caller).expect("challenge not found");
@@ -142,31 +149,37 @@ impl Contract {
 
     #[payable]
     pub fn add_prize(&mut self, account_id: AccountId) {
-        let mut ch = self
-            .challenges
-            .get(&account_id)
-            .expect("challenge not found");
-        ch.prize += env::attached_deposit();
-        self.challenges.insert(&account_id, &ch);
+        let mut challenge = self.challenges.get(&account_id).unwrap();
+        challenge
+            .funding
+            .fund(&env::predecessor_account_id(), env::attached_deposit());
+        self.challenges.insert(&account_id, &challenge);
     }
 
     pub fn abandon_challenge(&mut self) {
         let caller = env::predecessor_account_id();
+        let challenge = self.challenges.get(&caller).unwrap();
+        let prize = challenge.funding.resolve(false);
+        for (account_id, tokens) in prize.iter() {
+            Promise::new(account_id.clone()).transfer(*tokens);
+        }
         self.challenges.remove(&caller);
     }
 
-    pub fn finish_challenge(&mut self) -> Option<Balance> {
-        let caller = env::predecessor_account_id();
-        let mut ch = self.challenges.get(&caller).expect("challenge not found");
-        ch.update(env::block_timestamp());
-        let prize = ch.final_prize();
-        if let Some(prize) = prize {
-            log!("Challenge finished");
-            Promise::new(caller.clone()).transfer(prize);
-            self.challenges.remove(&caller);
+    pub fn finish(&mut self) {
+        let challenge = self.get_challenge(env::predecessor_account_id()).unwrap();
+        if challenge.lives_used > challenge.config.lives
+            || challenge.days_passed >= challenge.config.days
+        {
+            let prize = challenge
+                .funding
+                .resolve(challenge.days_passed >= challenge.config.days);
+            for (account_id, tokens) in prize.iter() {
+                Promise::new(account_id.clone()).transfer(*tokens);
+            }
+            self.challenges.remove(&env::predecessor_account_id());
         } else {
-            log!("The challenge hasn't finished yet!");
+            panic_str("Challenge is not finished yet");
         }
-        prize
     }
 }

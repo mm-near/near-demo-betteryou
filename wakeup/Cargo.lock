@@ -427,6 +427,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "funding"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "serde",
+]
+
+[[package]]
 name = "funty"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1352,6 +1360,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 name = "wakeup"
 version = "1.0.0"
 dependencies = [
+ "funding",
  "near-sdk",
  "uint",
 ]

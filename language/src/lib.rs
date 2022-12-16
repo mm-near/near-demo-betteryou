@@ -26,6 +26,7 @@ pub struct ChallengeState {
     total_lives: u32,
     days_left: u32,
     lives_left: u32,
+
     duolingo_username: String,
     language: String,
     quota_per_day: u32,
@@ -49,6 +50,11 @@ impl Default for Contract {
 // Implement the contract structure
 #[near_bindgen]
 impl Contract {
+    #[private]
+    pub fn reset(&mut self) {
+        self.challenges.clear();
+    }
+
     pub fn get_state_for_user(&self, account_id: AccountId) -> ChallengeState {
         self.challenges.get(&account_id).unwrap()
     }
@@ -133,23 +139,11 @@ impl Contract {
     }
 
     pub fn finish(&mut self) {
-        let challenge = self.get_challenge(env::current_account_id()).unwrap();
+        let challenge = self.get_challenge(env::predecessor_account_id()).unwrap();
         if challenge.days_left == 0 || challenge.lives_left == 0 {
-            if challenge.days_left == 0 && challenge.lives_left > 0 {
-                let prize = challenge.funding.resolve(true);
-                for (account_id, tokens) in prize.iter() {
-                    Promise::new(account_id.clone()).transfer(*tokens);
-                }
-            } else if challenge.days_left > 0 && challenge.lives_left == 0 {
-                let prize = challenge.funding.resolve(false);
-                for (account_id, tokens) in prize.iter() {
-                    Promise::new(account_id.clone()).transfer(*tokens);
-                }
-            } else if challenge.days_left == 0 && challenge.lives_left == 0 {
-                let prize = challenge.funding.resolve(false);
-                for (account_id, tokens) in prize.iter() {
-                    Promise::new(account_id.clone()).transfer(*tokens);
-                }
+            let prize = challenge.funding.resolve(challenge.days_left == 0);
+            for (account_id, tokens) in prize.iter() {
+                Promise::new(account_id.clone()).transfer(*tokens);
             }
             self.challenges.remove(&env::predecessor_account_id());
         } else {
@@ -180,7 +174,7 @@ impl Contract {
     }
 
     #[payable]
-    pub fn add_price(&mut self, account_id: AccountId) {
+    pub fn add_prize(&mut self, account_id: AccountId) {
         let mut challenge = self.challenges.get(&account_id).unwrap();
         challenge
             .funding
@@ -188,8 +182,13 @@ impl Contract {
         self.challenges.insert(&account_id, &challenge);
     }
 
-    // pub fn abandon_challenge(&mut self) {
-    //     let caller = env::predecessor_account_id();
-    //     self.challenges.remove(&caller);
-    // }
+    pub fn abandon_challenge(&mut self) {
+        let caller = env::predecessor_account_id();
+        let challenge = self.challenges.get(&caller).unwrap();
+        let prize = challenge.funding.resolve(false);
+        for (account_id, tokens) in prize.iter() {
+            Promise::new(account_id.clone()).transfer(*tokens);
+        }
+        self.challenges.remove(&caller);
+    }
 }
