@@ -1,3 +1,37 @@
+// - 'isowner' (true if observer is the owner of the challenge)
+let isOwner = props.isOwner ?? true;
+const challengeState = props.challengeState;
+
+let daysLeft = challengeState["days_left"];
+let daysTotal = challengeState["total_days"];
+let livesTotal = challengeState["total_lives"];
+let livesLeft = challengeState["lives_left"];
+let failedDaysList = challengeState["failed_days_list"] || [];
+
+
+
+let challengeStatus = "inprogress"
+if (daysLeft == 0) {
+    challengeStatus = "success";
+} else if (livesLeft == 0) {
+    challengeStatus = "failed";
+}
+
+let reward = challengeStatus["funding"]["initial_stake"] || 0;
+let backers = 0;
+
+if (challengeStatus["funding"]["backers"]) {
+    let array = challengeStatus["funding"]["backers"];
+    for (let index = 0; index < array.length; index++) {
+        const element = array[index];
+        reward += element["value"];
+        backers += 1;
+    }
+}
+
+let reward_str = Number(reward / 1_000_000_000_000_000_000_000_000).toFixed(1);
+
+
 
 const challengeSummary = {
     fontSize: "24px",
@@ -31,6 +65,26 @@ const challengeBoxTitle = {
 const challengeBoxContents = {
     borderRadius: "5px",
     backgroundColor: "white",
+    padding: "15px",
+    textAlign: "center",
+    marginTop: "20px",
+    marginBottom: "20px",
+    color: "#68717A",
+}
+
+const failedChallengeBoxContents = {
+    borderRadius: "5px",
+    backgroundColor: "#ffcccb",
+    padding: "15px",
+    textAlign: "center",
+    marginTop: "20px",
+    marginBottom: "20px",
+    color: "#68717A",
+}
+
+const successChallengeBoxContents = {
+    borderRadius: "5px",
+    backgroundColor: "#90ee90",
     padding: "15px",
     textAlign: "center",
     marginTop: "20px",
@@ -72,6 +126,18 @@ const greyDot = {
 
 const activeButton = {
     backgroundColor: "#2D949A",
+    color: "white",
+    borderRadius: "100px",
+    border: "0px",
+    paddingLeft: "24px",
+    paddingRight: "24px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    marginTop: "10px",
+}
+
+const inactiveButton = {
+    backgroundColor: "#a0a5ab",
     color: "white",
     borderRadius: "100px",
     border: "0px",
@@ -137,26 +203,85 @@ const renderDots = (totalDays, daysLeft, failedDaysList) => {
     return results
 }
 
-return (
-    <div style={mainBox}>
-        <div style={challengeSummary}> <img src="https://user-images.githubusercontent.com/91919554/208149479-340325cd-5151-4594-b7d6-ad91abe9d1ec.png"></img> Wake up earlier</div>
+const topBox = "";
+
+if (challengeStatus == 'inprogress') {
+    let target = "You";
+    if (isOwner == false) {
+        target = props.accountId;
+    }
+    let button = "";
+
+    if (isOwner) {
+        button = (<button style={activeButton}>CHECK IN NOW</button>);
+    }
+
+    topBox = (
         <div style={challengeBox}>
             <div style={challengeBoxTitle}>Summary</div>
             <div style={challengeBoxContents}>
-                You commited to waking up every day for <b>30 days</b> between <b>6:00-7:00</b>.
+
+                {target} commited to waking up every day for <b>30 days</b> between <b>6:00-7:00</b>.
                 <br />
-                <button style={activeButton}>CHECK IN NOW</button>
+                {button}
+                <button style={inactiveButton}>CHECK IN<br />Active in 2h 15m 30s</button>
             </div>
         </div>
+    )
+} else if (challengeStatus == "failed") {
+    topBox = (
+        <div style={challengeBox}>
+            <div style={challengeBoxTitle}>Sorry</div>
+            <div style={failedChallengeBoxContents}>
+                You lost the challenge.
+                <br />
+                <button style={activeButton}>Reset challenge</button>
+            </div>
+        </div>
+    )
+} else {
+    topBox = (
+        <div style={challengeBox}>
+            <div style={challengeBoxTitle}>Congratulations</div>
+            <div style={successChallengeBoxContents}>
+                You won the challenge
+                <br />
+                <button style={activeButton}>Claim reward</button>
+            </div>
+        </div>
+
+    )
+}
+
+let supportBox = "";
+
+if (isOwner == false) {
+    supportBox = (
+        <div style={challengeBox}>
+            <div style={challengeBoxTitle}>Support with NEAR</div>
+            <div style={challengeBoxContents}>
+                <input value="1.0"></input>
+                <button style={activeButton}>Support</button>
+            </div>
+        </div>
+    )
+}
+
+return (
+    <div style={mainBox}>
+        <div style={challengeSummary}> <img src="https://user-images.githubusercontent.com/91919554/208149479-340325cd-5151-4594-b7d6-ad91abe9d1ec.png"></img> Wake up earlier</div>
+
+        {topBox}
 
         <div style={{ overflow: "hidden" }}>
             <div style={{ display: "inline-block", width: "30%", verticalAlign: "top" }}>
                 <div style={challengeBox}>
                     <div style={challengeBoxTitle}>Current Rewards</div>
                     <div style={challengeBoxContents}>
-                        <span style={nearAmount}>15 NEAR</span> <br /> 3 people
+                        <span style={nearAmount}>{reward_str} NEAR</span> <br /> {backers} people
                     </div>
                 </div>
+                {supportBox}
             </div>
             <div style={{ display: "inline-block", width: "60%", verticalAlign: "top" }}>
 
@@ -165,10 +290,10 @@ return (
                     <div style={challengeBoxContents}>
 
                         <div>
-                            {renderDots(30, 5, [3, 4, 10])}
+                            {renderDots(daysTotal, daysLeft, failedDaysList)}
                         </div >
                         <div style={remainingBlock}>
-                            <b>Remaining:</b> 26 days (2 skip days available)
+                            <b>Remaining:</b> {daysLeft} days ({livesLeft} skip days available)
                         </div>
                     </div >
                 </div >
