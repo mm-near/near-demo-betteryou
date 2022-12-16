@@ -95,6 +95,10 @@ function getOwnerNoChallenge() {
 }
 
 function getNoChallenge() {
+    if (props.emptyIfNoChallenge) {
+        return "";
+    }
+
     if (isOwnerLoggedIn()) {
         return getOwnerNoChallenge();
     } else {
@@ -265,7 +269,7 @@ function on_change_support(change) {
 }
 
 function add_support() {
-    Near.call(contractId, "add_prize", { accountId: accountId }, None,
+    Near.call(contractId, "add_prize", { account_id: accountId }, None,
         parseFloat(supportValue) * Math.pow(10, 24));
 }
 

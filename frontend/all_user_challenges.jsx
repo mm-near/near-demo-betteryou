@@ -2,9 +2,8 @@ const accountId = props.accountId ?? context.accountId;
 
 
 const testnetWidgets = {
-    dummyChallenge: "nft12.testnet/widget/dummy_challenge",
-    languageChallenge: "nft12.testnet/widget/language_challenge",
-    wakeupChallenge: "nft12.testnet/widget/wakeup_challenge",
+    languageChallenge: "bazbar.testnet/widget/language_challenge",
+    wakeupChallenge: "bazbar.testnet/widget/wakeup-challenge",
 };
 
 let logo = (<img src="https://user-images.githubusercontent.com/91919554/207791330-aa5bc143-b51d-49b0-a0be-eae26365f1f2.png" />);
@@ -17,17 +16,13 @@ const widgets = testnetWidgets;
 return (
     <div>
         {logo}
-        <div style={{ display: "table" }}>
-            <div style={{ display: "table-row" }}>
-                <div style={{ display: "table-cell" }}>
-                    <Widget src={widgets["dummyChallenge"]} props={{ accountId }} />
-                </div>
-                <div style={{ display: "table-cell" }}>
-                    <Widget src={widgets["wakeupChallenge"]} props={{ accountId }} />
-                </div>
-                <div style={{ display: "table-cell" }}>
-                    <Widget src={widgets["languageChallenge"]} props={{ accountId }} />
-                </div>
+        <div>
+
+            <div style={{ display: "inline-block" }}>
+                <Widget src={widgets["wakeupChallenge"]} props={{ accountId, emptyIfNoChallenge: true }} />
+            </div>
+            <div style={{ display: "inline-block" }}>
+                <Widget src={widgets["languageChallenge"]} props={{ accountId, emptyIfNoChallenge: true }} />
             </div>
         </div>
     </div>

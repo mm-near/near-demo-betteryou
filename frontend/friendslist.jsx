@@ -17,7 +17,7 @@ const items = following
 const testnetWidgets = {
     itemscroll: "nft12.testnet/widget/ItemScroll",
     profileLine: "bazbar.testnet/widget/ProfileLine",
-    allUserChallenges: "nft12.testnet/widget/all_user_challenges",
+    allUserChallenges: "bazbar.testnet/widget/all_user_challenges",
 };
 
 const widgets = testnetWidgets;

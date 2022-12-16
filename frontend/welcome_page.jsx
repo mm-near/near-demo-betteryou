@@ -1,3 +1,8 @@
+const userChallengesWidget = "bazbar.testnet/widget/all_user_challenges"
+const wakeupSignupWidget = "/#/bazbar.testnet/widget/wakeup-challenge"
+const languageSignupWidget = "/#/bazbar.testnet/widget/language_challenge"
+const friendsWidget = "/#/bazbar.testnet/widget/friendlist"
+
 const header = {
     background: "#33333D",
     height: "263px",
@@ -61,10 +66,10 @@ const commitButton = {
     paddingRight: "24px",
     paddingTop: "10px",
     paddingBottom: "10px",
-    marginTop: "20px",
+    marginTop: "40px",
     marginLeft: "auto",
     marginRight: "auto",
-
+    fontSize: "16px"
 }
 
 
@@ -119,17 +124,31 @@ return (
                 <div style={messageBox}>
 
                     <b>Wake up earlier</b><br /><br />
-                    Wake up every day at a given timeframe <br />
-                    <button style={commitButton}>START CHALLENGE</button>
+                    Wake up every day at a given timeframe <br /><br />
+                    <a style={commitButton} href={wakeupSignupWidget}>START CHALLENGE</a>
                 </div>
                 <div style={messageBox}>
 
                     <b>Learn a new language</b><br /><br />
-                    Learn a language every day <br />
-                    <button style={commitButton}>START CHALLENGE</button>
+                    Learn a language every day <br /><br />
+                    <a style={commitButton} href={languageSignupWidget}>START CHALLENGE</a>
+                </div>
+                <div style={messageBox}>
+
+                    <b>Support your friends</b><br /><br />
+                    See what challenges your friends picked <br /> <br />
+                    <a style={commitButton} href={friendsWidget}>YOUR FRIENDS' CHALLENGES</a>
                 </div>
             </div>
+        </div>
+        <div style={paragraph}>
+            <div style={paragraphTitle}>
+                Your current challenges:
+            </div>
+            <div style={paragraphContent}>
+                <Widget src={userChallengesWidget}></Widget>
 
+            </div>
         </div>
     </div>
 )
