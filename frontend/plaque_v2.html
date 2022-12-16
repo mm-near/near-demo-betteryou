@@ -1,0 +1,278 @@
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+
+    <style>
+        body {
+            font-family: 'Inter';
+            font-size: 14px;
+        }
+
+        .challengeSummary {
+            font-size: 24px;
+            font-family: 'Roboto';
+        }
+
+        .mainBox {
+            width: 628px;
+            border-radius: 10px;
+            background-color: #F6F6F6;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding: 20px;
+
+        }
+
+        .challengeBox {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .challengeBoxTitle {
+            font-size: 16px;
+            color: #000000;
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            line-height: 19px;
+        }
+
+        .challengeBoxContents {
+            border-radius: 5px;
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            color: #68717A;
+        }
+
+        .dot {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .green {
+            background-color: green;
+        }
+
+        .red {
+            background-color: red;
+        }
+
+        .grey {
+            background-color: #bbb;
+        }
+
+        .activeButton {
+            background: #01DAAC;
+            border-radius: 100px;
+            padding-left: 31px;
+            padding-right: 31px;
+            padding-top: 13px;
+            padding-bottom: 13px;
+
+            margin-top: 10px;
+
+            border: 0px;
+
+            gap: 8px;
+
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 20px;
+            align-items: center;
+            text-align: center;
+            letter-spacing: 0.1px;
+
+            /* M3/sys/light/on-primary */
+
+            color: #FFFFFF;
+        }
+
+        .nearAmount {
+            font-size: 16px;
+            font-weight: 400;
+
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="mainBox">
+        <div class="challengeSummary"> ICON Wake up earlier</div>
+        <div class="challengeBox">
+            <div class="challengeBoxTitle">Summary</div>
+            <div class="challengeBoxContents">
+                You commited to waking up every day for <b>30 days</b> between <b>6:00-7:00</b>.
+                <br>
+                <button class="activeButton"> Check in now </button>
+            </div>
+        </div>
+
+        <div style="overflow: hidden;">
+            <div style="float: left;">
+                <div class="challengeBox">
+                    <div class="challengeBoxTitle">Current Rewards</div>
+                    <div class="challengeBoxContents">
+                        <span class="nearAmount">15 NEAR</span> from 3 people
+                    </div>
+                </div>
+
+                <div class="challengeBox">
+                    <div class="challengeBoxTitle">Current bets</div>
+                    <div class="challengeBoxContents">
+                        Success: <span class="nearAmount">20 NEAR</span> from 3 people
+                    </div>
+                    <div class="challengeBoxContents">
+                        Failure: <span class="nearAmount">15 NEAR</span> from 8 people.
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="overflow: hidden;" class="challengeBox" style="padding-left: 20px">
+                <div class="challengeBoxTitle">Check-in progress</div>
+                <div class="challengeBoxContents">
+
+                    <div>
+                        <span class="green dot"></span>
+                        <span class="red dot"></span>
+                        <span class="grey dot"></span>
+                        01 02 03 04
+                    </div>
+                    <div>
+                        Remaining:26 days (2 skip days available)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+    <h3>This is what your friends will see.</h3>
+    <br>
+
+    <img src=" https://user-images.githubusercontent.com/91919554/207791330-aa5bc143-b51d-49b0-a0be-eae26365f1f2.png">
+
+    <br>
+    <div style="width: 300px; border: 2px #dee2e6 solid; border-radius: 5px; ">
+        <img src="https://user-images.githubusercontent.com/91919554/207791325-65269d93-4ef3-4844-b029-1223099fc816.png"
+            style="width: 100%">
+        <div style="padding:20px">
+            <div style="padding-top: 20px; padding-bottom: 20px; color:#68717A">
+                <h1 style="color:black"> Wake up </h1>
+                <b>mm-near</b> is participating in this challenge.
+                They have committed to waking up every day for <b>50 days</b> at <b>6:00 AM</b>.
+                Do you want to support them?
+            </div>
+            <hr>
+            <div style="padding-bottom: 20px">
+                <h2>Progress</h2>
+                Remaining days
+
+                <div style="background-color:#e9ecef; border-radius: 5px">
+                    <div style="height: 20px; width:20%; background-color:#000000; border-radius: 5px"> </div>
+                </div>
+                <span style="float: right">21 days</span>
+                <br>
+
+                Available Skip Days
+                <div style="background-color:#9e9e9e; border-radius: 5px">
+                    <div style="height: 20px; width:100%; background-color:#000000; border-radius: 5px"> </div>
+                </div>
+                <span style="float: right">0 days</span>
+
+            </div>
+            <hr>
+
+            <div style="padding-bottom: 20px">
+                <h2>Current Rewards</h2>
+                <span style="font-size: 26px; font-weight: bold"> 15 NEAR </span><br>
+                From 3 people <br>
+                <button>Send Reward</button>
+            </div>
+
+            <hr>
+            <div style="padding-bottom: 20px">
+
+                <h2>Current bets</h2>
+
+                <div style="font-size:20px">Success: <b> 200 NEAR </b></div>
+                10 people <br>
+                <button>Bet on success</button>
+
+                <br><br>
+
+                <div style="font-size:20px">Failure: <b> 40 NEAR </b></div>
+                5 people <br>
+                <button>Bet on failure</button>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <h3>What you see when you don't have any challenge</h3>
+    <br>
+    <div style="width: 400px; border: 2px black solid; border-radius: 25px; padding: 20px;">
+        <b>Join wake-up challenge:</b><br>
+
+        Wake up every day at a given time: and get your money back.<br>
+
+        Select number of days: <input size=3 maxlength=3 value="30"> <br>
+        Select number of lives: <input size=3 maxlength=3 value="3"> <br>
+        Select wake up hour (in your local timezone): <input size="3" value="6 AM"> <br>
+        Tokens to stake: <input size="3" value="10"> <br>
+
+        <button>Start challenge</button>
+    </div>
+
+    <br>
+
+    <h3>In the middle of challenge</h3>
+    <br>
+    <div style="width: 400px; border: 2px black solid; border-radius: 25px; padding: 20px;">
+        Your wake-up challenge. <br>
+        Your progress progress: <b>27</b> days remaining, <b>3</b> lives left. <br>
+        Current reward: <b>15 N</b> (from 3 people) <br>
+        Current bets: Success: <b>200N</b> (10 people), Failure: <b>400N</b> (15 people). <br>
+
+        <button disabled="true">I'm awake (button active in 4h)</button>
+
+    </div>
+
+    <br>
+    <h3>At the end of the challenge</h3>
+    <br>
+    <div style="width: 400px; border: 2px black solid; border-radius: 25px; padding: 20px;">
+        Congrats - you won the challenge. <br>
+        Please press the button below to collect your reward: <br>
+        <button>Collect 24 N</button>
+    </div>
+
+    <br>
+
+    <div style="width: 400px; border: 2px black solid; border-radius: 25px; padding: 20px;">
+        Sorry - but you failed the challenge. <br>
+        Please press the button below reset your challenge and try again <br>
+        <button>Reset challenge</button>
+    </div>
+
+</body>
+
+</html>
