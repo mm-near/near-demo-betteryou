@@ -284,7 +284,7 @@ return (
                             {renderDots(daysTotal, daysLeft, dayStatus)}
                         </div >
                         <div style={remainingBlock}>
-                            <b>Remaining:</b> {daysLeft} days ({livesLeft} skip days available)
+                            <b>Remaining:</b> {daysLeft} days ({livesLeft - 1} skip days available)
                         </div>
                     </div >
                 </div >
