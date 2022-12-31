@@ -102,7 +102,6 @@ if (!accountId) {
     return "Please log in to view your own challenge or specify account id to view in props.";
 }
 
-
 const challenge_state = Near.view(contractId, "get_challenge", {
     account_id: accountId,
 });
@@ -149,17 +148,17 @@ function onChangeUsername(change) {
 }
 
 function onChangeQuotaPerDay(change) {
-    quotaPerDayInputValue = change.target.value;
+    quotaPerDayInputValue = parseInt(change.target.value);
     console.log(quotaPerDayInputValue);
 }
 
 function onChangeTotalDays(change) {
-    totalDaysInputValue = change.target.value;
+    totalDaysInputValue = parseInt(change.target.value);
     console.log(totalDaysInputValue);
 }
 
 function onChangeTotalLives(change) {
-    totalLivesInputValue = change.target.value;
+    totalLivesInputValue = parseInt(change.target.value);
     console.log(totalLivesInputValue);
 }
 
