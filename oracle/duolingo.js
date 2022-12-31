@@ -65,8 +65,7 @@ async function run() {
     let state = await contract.get_all_state();
     for (const challenge of state) {
         try {
-            //const duo = new Duo(challenge[1].duolingo_username.toString());
-            const duo = new Duo("fsdkfjsdlfkj");
+            const duo = new Duo(challenge[1].duolingo_username.toString());
 
             const courses = await duo.getCourses();
             const result = courses.find(({ title }) => title === challenge[1].language);
