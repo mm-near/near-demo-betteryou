@@ -158,8 +158,7 @@ impl Contract {
         previous_val.current_daily_xp = 0;
         previous_val.day_start_xp = day_start_xp;
         previous_val.day_status.push(true);
-        self.challenges
-            .insert(&env::predecessor_account_id(), &previous_val);
+        self.challenges.insert(account_id, &previous_val);
     }
     fn admin_fail_day(&mut self, account_id: &AccountId, day_start_xp: u32) {
         let mut previous_val = self.challenges.get(account_id).unwrap();
@@ -169,8 +168,7 @@ impl Contract {
         previous_val.current_daily_xp = 0;
         previous_val.day_start_xp = day_start_xp;
         previous_val.day_status.push(false);
-        self.challenges
-            .insert(&env::predecessor_account_id(), &previous_val);
+        self.challenges.insert(account_id, &previous_val);
     }
 
     #[payable]
