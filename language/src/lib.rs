@@ -107,7 +107,7 @@ impl Contract {
         let now: Timestamp = env::block_timestamp();
         for i in 0..update.len() {
             // Check if it's a new day for all of the challenges based on their register timestamp
-            let mut previous_val = self.challenges.get(&update[i].0).unwrap();
+            let previous_val = self.challenges.get(&update[i].0).unwrap();
             let day_start = self
                 .challenges
                 .get(&update[i].0)
@@ -131,6 +131,8 @@ impl Contract {
                     self.admin_fail_day(&update[i].0, previous_val.total_xp);
                 }
             }
+            // Load the value again, in case it was just updated.
+            let mut previous_val = self.challenges.get(&update[i].0).unwrap();
             let incoming_value = &update[i].1;
             previous_val.total_xp = *incoming_value;
             previous_val.current_daily_xp = *incoming_value - previous_val.day_start_xp;
