@@ -23,3 +23,4 @@ near.social on testnet is under test.near.social
 
 Our contracts should be deployed at: ``wakeup.betteryou.testnet`` and ``language.betteryou.testnet``
 
+changing this for some example PR. and I cann tpe so mny bugs
